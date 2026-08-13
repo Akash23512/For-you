@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d0d11;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            color: #ffffff;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .slide {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 1s ease, transform 1s ease;
+            pointer-events: none;
+            max-width: 700px;
+            width: 90%;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .slide h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
+            color: #f3f3f5;
+        }
+
+        .slide span {
+            display: inline-block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #ffb3c1;
+            opacity: 0.8;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #a0a0ab;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 600px) {
+            .slide h1 {
+                font-size: 1.4rem;
+                line-height: 1.5;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Subtle Floating Particles Canvas -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Main Text Content Slides -->
+    <div class="container">
+        
+        <div class="slide active">
+            <h1>Hey... I know today feels heavy,<br>so first: take a deep breath.</h1>
+            <span>Take It Easy</span>
+        </div>
+
+        <div class="slide">
+            <h1>It’s completely okay to have off days.<br>You don’t have to force a smile right now.</h1>
+            <span>No Pressure</span>
+        </div>
+
+        <div class="slide">
+            <h1>Whenever your mood feels low,<br>remember that I’m right here beside you.</h1>
+            <span>Safe Harbor</span>
+        </div>
+
+        <div class="slide">
+            <h1>You handle so much every single day,<br>and I am always so proud of you.</h1>
+            <span>Gentle Reminder</span>
+        </div>
+
+        <div class="slide">
+            <h1>Whatever is bothering you can wait.<br>Right now, just rest your mind.</h1>
+            <span>Comfort First</span>
+        </div>
+
+        <div class="slide">
+            <h1>No matter how tough the day was,<br>you’re deeply loved—always and unconditionally. ❤️</h1>
+            <span>Here For You</span>
+        </div>
+
+    </div>
+
+    <!-- Instruction Hint -->
+    <div class="hint" id="hint">Tap anywhere to continue</div>
+
+    <!-- Background Audio (Add your own MP3 file named music.mp3) -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Slide Navigation Logic
+        const slides = document.querySelectorAll('.slide');
+        const hint = document.getElementById('hint');
+        const audio = document.getElementById('bgMusic');
+        let currentSlide = 0;
+        let musicStarted = false;
+
+        document.addEventListener('click', advanceSlide);
+        document.addEventListener('touchstart', advanceSlide);
+
+        function advanceSlide() {
+            // Start playing audio on first tap
+            if (!musicStarted && audio) {
+                audio.play().catch(() => {});
+                musicStarted = true;
+            }
+
+            // Transition slides
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+
+            // Hide tap hint on last slide
+            if (currentSlide === slides.length - 1) {
+                hint.style.display = 'none';
+            } else {
+                hint.style.display = 'block';
+            }
+        }
+
+        // Background Particle Animation
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const particles = Array.from({ length: 45 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.8 + 0.5,
+            speedY: -(Math.random() * 0.3 + 0.1),
+            opacity: Math.random() * 0.6 + 0.2
+        }));
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y += p.speedY;
+                if (p.y < 0) p.y = canvas.height;
+                ctx.fillStyle = `rgba(255, 179, 193, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
+
